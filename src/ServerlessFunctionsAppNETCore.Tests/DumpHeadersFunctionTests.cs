@@ -1,8 +1,4 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Net.Http;
-using System.Web.Http;
-using System.Threading.Tasks;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.AspNetCore.Http;
 using Moq;
 using Microsoft.AspNetCore.Mvc;
@@ -19,8 +15,7 @@ namespace ServerlessFunctionsAppNETCore.Tests
             // Arrange
             var log = new Mock<ILogger>();
             var request = new Mock<HttpRequest>();
-            var headers = new HeaderDictionary();
-            headers.Add("custom", "AzureFunctions");
+            var headers = new HeaderDictionary {{"custom", "AzureFunctions"}};
             request.Setup(r => r.Headers).Returns(headers);
 
             // Act

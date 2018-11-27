@@ -109,7 +109,7 @@ Execute both tests again. Both should succeed. Make sure both pass.
 
 ## <a name="3"></a>3. If you have time left...
 
-Should you be finished early, you can continue to write some tests for the other Azure Functions ```ImportHighScoreFunction``` and ```QRCodeGeneratorFunction```. This will require some work to create mocks and isolate your function's logic. Also, you can look at how to refactor the implementation of your function to simplify the overall structure and unit tests. 
+Should you be finished early, you can continue to write some tests for the other Azure Functions ```ImportHighScoreFunction``` and ```LinkSourceExtractor```. This will require some work to create mocks and isolate your function's logic. Also, you can look at how to refactor the implementation of your function to simplify the overall structure and unit tests. 
 
 ## Wrapup
 In this lab you have created your first two unit tests for the HTTP trigger based functions. In the next lab these unit tests will be executed by a build pipeline.
