@@ -20,7 +20,7 @@ You will create a unit test for the DumpHeadersFunction first.
 >
 > Which arguments do you need to pass?
 
-Next, change the name of the precreated unit test to be like this:
+Next, in the test project, rename the default generated file to be DumpHeadersFunctionTests and rename unit test to:
 ```
 [TestMethod]
 public void GivenRequestHasHeaders_WhenRunIsCalled_ResponseShouldReflectHeaderValues()
@@ -55,7 +55,7 @@ Execute the unit test from the Test Explorer. If all goes well it should execute
 
 Testing a POST Http Trigger based Function is a little trickier. It involves more work to set up the mock ```HttpRequest``` object.
 
-Add a new unit test method to the project:
+Add a new test class for the HighScoreFunction and add the following unit test method to the class:
 ```
 [TestMethod]
 public async Task GivenRequestHasInvalidScore_WhenRunIsCalled_BadRequestResponseShouldBeReturned()
