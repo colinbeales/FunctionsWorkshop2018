@@ -20,8 +20,10 @@ Add a new resource of type ```Function App``` in the resource group you just mad
 In the details of the Create blade choose the following:
 - **Name**: Something globally unique
 - **Resource group**: Select the existing one you created.
+- **OS**: Windows
 - **Hosting plan**: Consumption
 - **Location**: Preferably same as the location of the resource group.
+- **Runtime Stack**: .NET
 - **Storage**: New, and give it a proper name, e.g. your function name with a ```storage``` postfix. Make sure the name is all lowercase and not longer than 24 characters.
 - **Application Insights**: On, and in the same location as the resource group.
 
@@ -40,10 +42,8 @@ You might encounter this window:
 
 ![New Function](images/NewFunction.png)
 
-Simply choose ```Custom function``` from the bottom half and continue.
-
-From all templates pick the ```HTTP trigger with parameters```. You can experiment with other function types later. 
-Set the language to C# and Authorization level to ```Function```. Finally, click Create.
+Simply choose ```HTTP trigger``` and continue. You can experiment with other function types later. 
+Provide a name for the function and set the Authorization level to ```Function``` (default). Finally, click Create.
 
 > Take a moment to look at the signature of the created function. 
 >
@@ -51,7 +51,7 @@ Set the language to C# and Authorization level to ```Function```. Finally, click
 
 ## <a name="3"></a>3. Run your first Azure Function 
 
-Expand the `Test` tab to the right of the function ```run.csx```. Select `GET` as the HTTP method and fill in a value in the textbox for the ```name``` parameter.  
+Expand the `Test` tab located at the far right of the Editor window. Select `GET` as the HTTP method and add a query parameter named ```name``` and provide it with a value.  
 Next, click the `Run` button and see what happens. 
 Also, try it without any value for the ```name``` parameter.
 
@@ -71,7 +71,7 @@ Next, select ```Integrate``` in the left menu of the Functions. Examine the dial
 
 > Do you recognize the elements in this dialog? Where did you just see these items?
 
-Proceed to have a look at the other menu items of ```Manage``` and ```Monitor``` underneath ```Integrate```.  
+Proceed to have a look at the other menu items of ```Manage``` and ```Monitor``` underneath ```Integrate```.
 
 > What can you do at each of these two items?
 
@@ -81,7 +81,7 @@ From the Monitor tab, it is also interesting to follow the ```Run in Application
 
 The final part of this lab will allow you to freely explore and discover settings and configuration of a Function App. 
 
-Here are some interesting areas to look into. Select the link for your function in the left menu under functions. This should bring you to the main page of your function. Pick any of the links under ```Configured features```.
+Here are some interesting areas to look into. Click on the name of your function app in the left menu under Functions Apps. This should bring you to the main page of your function. Pick any of the links under ```Configured features```.
 
 ![Configured Features](images/ConfiguredFeatures.png)
 

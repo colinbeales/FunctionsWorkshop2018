@@ -33,13 +33,13 @@ The following optional tools are recommended, but not required.
 The workshop uses a Git repository for this documentation and the completed labs. 
 
 Clone the repository to your development machine:
-- Create a folder for the source code, e.g. `C:\Sources\FunctionsWorkshop2018`.
+- Create a folder for the source code, e.g. `C:\Sources\`.
 - Open a command prompt from that folder
 - Clone the Git repository for the workshop files:
 
 ```
 // Git address will be made available soon!
-git clone https://github.com/alexthissen/functionsworkshop2018.git
+git clone https://github.com/marcduiker/FunctionsWorkshop2018.git
 ```
 - Set an environment variable to the root of the cloned repository from PowerShell:
 ```
