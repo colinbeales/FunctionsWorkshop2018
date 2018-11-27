@@ -1,0 +1,9 @@
+GET http://localhost:7071/api/DumpHeadersFunction
+
+###
+
+@name = adalovelace
+POST http://localhost:7071/api/HighScores/player/{{name}}
+Content-Type: application/json
+
+1000
