@@ -12,23 +12,23 @@ Goals for this lab:
 
 ## <a name="1"></a>1. Deploy your Function App manually using VS2017
 
-Let's start with simply publishing the FunctionApp to Azure from Visual Studio 2017.
+Let's start with simply publishing the Function App to Azure from Visual Studio 2017.
 
-Right-click on the FunctionApp and select `Publish..`.
+Right-click on the Function App and select `Publish..`.
 
 You will see this screen:
 ![Puslish Target VS2017](images/VS2017PublishTarget.png)
  
 - Select **Azure Function App** on the left.
-- Select **Select Existing** since you will reuse the FunctionApp which was created in Lab 1.
+- Select **Select Existing** since you will reuse the Function App which was created in Lab 1.
 - Select **Run from package file**
 - Click **Publish**. 
 
-In the next screen, select the subscription you've used to create the FunctionApp in Azure (in Lab 1), click on the FunctionApp name under the corresponding resource group and click OK. Now a publishing pofile is created and the FunctionApp is published to Azure.
+In the next screen, select the subscription you've used to create the Function App in Azure (in Lab 1), click on the Function App name under the corresponding resource group and click OK. Now a publishing pofile is created and the Function App is published to Azure.
 
 > Have a look at the publishing profile in Visual Studio (pubxml file) to familiarize yourself with the content of this file.
 >
-> Browse to the FunctionApp in Azure and observe the published functions in the FunctionApp.
+> Browse to the Function App in Azure and observe the published functions in the Function App.
 
 ## <a name="2"></a>2. Deploy your Function App manually using Azure Functions Core Tools and Azure CLI
 
@@ -39,7 +39,7 @@ az --help
 ```
 If the CLIs are available, you are good to continue. Otherwise, refer to [Lab 0](Lab0-GettingStarted.md) to install the Azure Function Core tools.
 
-Change the current directory of your command prompt to the folder of your Visual Studio FunctionApp project.
+Change the current directory of your command prompt to the folder of your Visual Studio Function App project.
 
 ### Azure Login & Subscriptions
 
@@ -55,7 +55,7 @@ az account list
 az account set --subscription <subscriptionguid>
 ```
 
-### Publish the FunctionApp
+### Publish the Function App
 
 Once the correct subscription is set, you can deploy your application to the Function App in Azure using:
 ```
@@ -65,7 +65,7 @@ func azure functionapp publish <FunctionsWorkshop2018Name>
 
 ### Verification in Azure
 
-Open the Azure portal and verify that the app was published successfully. Navigate to the FunctionApp just published and check whether it is functioning correctly: 
+Open the Azure portal and verify that the app was published successfully. Navigate to the Function App just published and check whether it is functioning correctly: 
 
 > Start by verifying the DumpHeadersFunction from the portal. 
 > 
@@ -83,7 +83,7 @@ Use the following command to retrieve all settings from the specified Function A
 func azure functionapp fetch-app-settings FunctionsWorkshop2018
 ```
 
-This will write the settings from the portal to your ```local.settings.json``` file in the root of your FunctionApp folder. It will append the existing local settings.
+This will write the settings from the portal to your ```local.settings.json``` file in the root of your Function App folder. It will append the existing local settings.
 
 Verify that settings file still has the following settings: 
 - ```azurefunctions-queues```

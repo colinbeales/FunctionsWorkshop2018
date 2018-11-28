@@ -14,7 +14,7 @@ Open your Visual Studio solution and find the two HTTP trigger functions in the 
 
 Run your application locally. Can you access the functions while running in the local host?
 
-Commit and push your source code to the Git repo and start a new build and consequent release. After the release has completed, try to use the original URL to access the ```DumpHeadersFunction``` from the browser:
+Deploy the Function App to Azure. Try to use the original URL to access the ```DumpHeadersFunction``` from the browser:
 ```
 https://functionsworkshop2018.azurewebsites.net/api/dumpheadersfunction
 ```
@@ -28,7 +28,7 @@ Since a Function App is running as a Azure Web App we can leverage all capabilit
 Go to your Function App in the portal and select the ```Platform Features``` tab. Follow the link to ```Authentication / Authorization``` and enable the ```App Service Authentication```. Next, select "Microsoft account" as your first authentication provider. Since it is not configured you need to take some additional steps. You can find detailed information on how to set up the provider at the top of the blade that opened. In short, take the following steps:
 
 1. Navigate to http://go.microsoft.com/fwlink/p/?LinkId=262039 to be redirected to the Application Registration Portal of the Microsoft Account developer portal.
-2. Under converged applications, click "Add an app". Give your app a name corresponding to the Function App, such as ```FunctionsWorkshop2018```. Click Create.
+2. Click "Add an app". Give your app a name corresponding to the Function App, such as ```FunctionsWorkshop2018```. Click Create.
 3. In the next screen, copy the Application Id and store it. 
 4. Generate a password and store it as well.
 5. Add a new platform and choose ```Web```. As the Redirect URL, use the URL of the root of the Function App and append: 
@@ -39,7 +39,7 @@ Go to your Function App in the portal and select the ```Platform Features``` tab
 7. In the blade for the MSA authentication provider enter the Application Id as Client Id and set the Client Secret to the generated password from step 4.
 8. Save the provider configuration and also save the authentication settings for the Function App.
 
-Change the function's authorization level to be of ```AuthorizationLevel.User```. Redeploy your Function App using your pipelines.
+Change the function's authorization level to be of ```AuthorizationLevel.User```. Redeploy your Function App.
 	
 After this you should be good to try it out. Navigate to the root of your Function App, e.g. ```http://functionsworkshop2018.azurewebsites.net``` and notice how you need to authenticate with your Microsoft account and give consent to have the function app view profile information.
 Note that the MSA provider might require a little more time to become active.
