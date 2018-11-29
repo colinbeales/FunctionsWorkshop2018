@@ -22,6 +22,8 @@ This shouldn't work anymore. Navigate to the portal and find the Function App an
 
 Compose the final URL by appending ```?code=``` with your default function key included at the end. Try to execute the function again.
 
+Instead of the ```code``` querystring parameter you can also add an HTTP header called ```x-functions-key``` and pass the key in here. Use Postman or the VSCode REST Client to apply this header and execute the function again. 
+
 ## <a name="2"></a>2. Using social identity authentication providers
 
 Since a Function App is running as a Azure Web App we can leverage all capabilities of a Web App for our solution. In this next part you will configure your Function App to use authentication from social identity providers.
