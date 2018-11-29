@@ -5,13 +5,12 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
-using System;
 
 namespace ServerlessFunctionsAppNETCore
 {
     public static class HighScoreFunction
     {
-        [FunctionName("HighScoreFunction")]
+        [FunctionName(nameof(HighScoreFunction))]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", 
             Route = "HighScores/player/{nickname}")]HttpRequest req,

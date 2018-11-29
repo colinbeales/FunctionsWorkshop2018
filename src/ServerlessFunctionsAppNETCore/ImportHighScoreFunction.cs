@@ -7,7 +7,7 @@ namespace ServerlessFunctionsAppNETCore
 {
     public static class ImportHighScoreFunction
     {
-        [FunctionName("ImportHighScoreFunction")]
+        [FunctionName(nameof(ImportHighScoreFunction))]
         public static async Task Run(
             [QueueTrigger("azurefunctions-import", Connection = "azurefunctions-queues")] HighScoreEntry[] entries,
             ILogger log,
