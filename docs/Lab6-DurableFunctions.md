@@ -109,7 +109,10 @@ Compile the project, fix any errors and start the project. Use Postman of the VS
 >
 > How many times is a breakpoint hit in the orchestration? 
 >
->How many times in the activity function?
+> How many times in the activity function?
+> 
+> Open the Azure Storage Explorer and look for a table called DurableFunctionsHubHistory. What can you see in there?
+
 
 As you might have noticed the orchestration function is being replayed. The Durable Functions framework stored the orchestration status in Azure Table Storage and uses Storage Queues to call activities and start/replay the orchestration.   
 
@@ -138,7 +141,7 @@ public static async Task<IEnumerable<ExtractedDocument>> RunOrchestrator(
 ```
 > Notice that the calls to the activity function in the foreach loop are not awaited. There's only one await for the entire collection of tasks.
 
-Be very careful which site you select to start with since links will be retrieved for two levels deep! You can put a breakpoint in the orchestration right after the first call to LinkSourceExtractorActivity to see how big the ChildUrls list is.
+Be careful which site you select to start with since links will be retrieved for two levels deep! You can put a breakpoint in the orchestration right after the first call to LinkSourceExtractorActivity to see how big the ChildUrls list is.
 
 Now compile and start the orchestration (again with Postman or VSCode REST Client). Keep an eye on the function runtime console to see how often activity functions are started. Once the orchestration is finished use the ```statusQueryGetUri``` to retrieve the final results.
 
