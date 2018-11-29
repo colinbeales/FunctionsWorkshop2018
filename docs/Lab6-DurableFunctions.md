@@ -5,7 +5,7 @@ In this lab you will learn how to program durable functions using the Durable Ex
 Goals for this lab: 
 - [A durable Hello World function](#1)
 - [Building an orchestration and activities](#2)
-- [Imperative bindings](#3)
+- [Fan-out/fan-in](#3)
 
 ## <a name="1"></a>1. A durable Hello World function
 
@@ -22,116 +22,134 @@ Run your project and you should see the new functions appear. Copy and paste the
 
 ## <a name="2"></a>2. Building an orchestration and activities
 
-Next you will build an orchestration that will accept new high scores, which must be stored in a storage table, as well as generate a QR code for each new high score. 
+Next you will build an orchestration that will find link sources in a web page and stores the information as json in blob storage. 
 
-Begin by adding two folders to your project: 
+Begin by adding three folders to your project: 
 1. Activities
 2. Orchestrations
+3. Models
 
-Add a new class to the Activities folder and name it ```QRCodeGeneratorActivity```. Implement it with the following code, which is common from the QRCodeGeneratorFunction mostly:
+Add a model class ```ExtractedDocument``` to the models folder. This model will contain two properties to capture the parent and child urls.
 ```
-[FunctionName(nameof(QRCodeGeneratorActivity))]
-public static async Task<string> Run([ActivityTrigger] HighScore score,
-    ILogger logger,
-    [Blob("azurefunctions-qrcode-images/{rand-guid}",
-        FileAccess.ReadWrite,
-        Connection = "azurefunctions-blobs")] CloudBlockBlob blob)
+public class ExtractedDocument
 {
-    logger.LogInformation($"Generating QR Code for high score {score.Score} by {score.Nickname}");
-
-    QRCodeGenerator generator = new QRCodeGenerator();
-    QRCodeData data = generator.CreateQrCode($"{score.Nickname} scored {score.Score}", QRCodeGenerator.ECCLevel.H);
-    QRCode code = new QRCode(data);
-
-    using (var stream = await blob.OpenWriteAsync())
+    public ExtractedDocument(string parentUrl)
     {
-        Bitmap bitmap = code.GetGraphic(20, Color.Black, Color.White, true);
-        bitmap.Save(stream, ImageFormat.Png);
+        ParentUrl = parentUrl;
+        ChildUrls = new List<string>();
     }
-    return blob.StorageUri.PrimaryUri.AbsoluteUri;
+    public string ParentUrl { get; set; }
+    public List<string> ChildUrls { get; set; }
 }
-
 ```
 
-Also add a new class to the Orchestrations folder, and name it ```RegisterNewHighScoreOrchestration```.
-Implement it with the following code:
+Add a new class to the Activities folder and name it ```LinkSourceExtractorActivity```. Implement it with the following code, which is common from the queue triggered LinkSourceExtractor function mostly:
 ```
-[FunctionName(nameof(RegisterNewHighScoreOrchestration))]
-public static async Task<string> RunOrchestrator(
-    [OrchestrationTrigger] DurableOrchestrationContextBase context, 
+private static readonly HtmlWeb Web = new HtmlWeb(); 
+
+[FunctionName(nameof(LinkSourceExtractorActivity))]
+public static async Task<ExtractedDocument> Run(
+    [ActivityTrigger] string url, 
     ILogger log)
 {
-    var score = context.GetInput<HighScore>();
-
-    var blobUri = await context.CallActivityAsync<string>(
-        nameof(QRCodeGeneratorActivity),
-        score);
-    return blobUri;
+    var result = new ExtractedDocument(url);
+    try
+    {
+        var doc = await Web.LoadFromWebAsync(url, Encoding.UTF8);
+        var anchors = doc.DocumentNode.SelectNodes("//a[@href]");
+        var sources = anchors
+            .Select(a => a.GetAttributeValue("href", string.Empty))
+            .Where(a => a.StartsWith("http"));
+        result.ChildUrls = sources.ToList();
+    }
+    catch (Exception e)
+    {
+        log.LogError(e, $"Exception while processing {url}.");
+    }
+    return result;
 }
-```
 
-Next, add a model class ```HighScore``` for holding the data from the HTTP Request.
 ```
-public class HighScore
+> Notice that the creation of HtmlWeb is done in a static field outside function. Why could this be useful?
+
+Then add a new class to the Orchestrations folder, and name it ```UrlScraperOrchestration```.
+Implement it with the following code:
+```
+[FunctionName(nameof(UrlScraperOrchestration))]
+public static async Task<ExtractedDocument> RunOrchestrator(
+    [OrchestrationTrigger] DurableOrchestrationContext context)
 {
-    public string Nickname { get; set; }
-    public int Score { get; set; }
+    var url = context.GetInput<string>();
+    var document = await context.CallActivityAsync<ExtractedDocument>(nameof(LinkSourceExtractorActivity), url);
+    
+    return document;
 }
 ```
 
-Finally, add a Function that trigger the start of the orchestration at the root of the project.
+It doesn't look very spectacular yet since there is just one activity called in this orchestration, but that will change in the next section.
+
+Finally, add a Function that triggers the start of the orchestration at the root of the project.
 ```
-[FunctionName("RegisterNewHighScore_HttpStart")]
+[FunctionName("UrlScraperOrchestration_HttpStart")]
 public static async Task<HttpResponseMessage> HttpStart(
-    [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestMessage req,
+    [HttpTrigger(AuthorizationLevel.Anonymous, "post")]HttpRequestMessage req,
     [OrchestrationClient]DurableOrchestrationClient starter,
-    ILogger logger)
+    ILogger log)
 {
-    // Function input comes from the request content.
-    HighScore score = new HighScore() { Nickname = "LX360", Score = 1337 };
-
-    string instanceId = await starter.StartNewAsync(nameof(RegisterNewHighScoreOrchestration), score);
-
-    logger.LogInformation($"Started orchestration with ID = '{instanceId}'.");
-
-    return await starter.WaitForCompletionOrCreateCheckStatusResponseAsync(
-        req, instanceId, TimeSpan.FromSeconds(5));
+    var input  = await req.Content.ReadAsStringAsync();
+    string instanceId = await starter.StartNewAsync(nameof(UrlScraperOrchestration), input);
+    log.LogInformation($"Started orchestration with ID = '{instanceId}'.");
+    return starter.CreateCheckStatusResponse(req, instanceId);
 }
 ```
 
-For now, the data for the ```HighScore``` object is hardwired, but you can fix that later.
+Compile the project, fix any errors and start the project. Use Postman of the VSCode REST client to do a POST to the HTTP start function and provide a valid url in the body (e.g. http://docs.microsoft.com). 
 
-Compile the project, fix any errors and start the project. Navigate to the new URL for the starter function and watch what happens. 
+> Put some breakpoints in the orchestrator and the activity function and start the orchestration.
+>
+> How many times is a breakpoint hit in the orchestration? 
+>
+>How many times in the activity function?
 
-> Perhaps something goes wrong and you restarted the Function App. If not, imagine what would happen if the QRCodeGeneratorActivity gets retried.
-> 
-> What causes the problem?
+As you might have noticed the orchestration function is being replayed. The Durable Functions framework stored the orchestration status in Azure Table Storage and uses Storage Queues to call activities and start/replay the orchestration.   
 
-## <a name="3"></a>3. Imperative bindings
+## <a name="3"></a>3. Fan-out/fan-in
 
-The problem lies in the fact that a Durable Function and any of its orchestrations and activities may get retried. It should be idempotent and give the same results every time it is run or retried. The ```{rand-guid}``` expression causes a new blob object to be created every time. This needs to be fixed.
+Let's make the orchestration a bit more interesting. Once the LinkSourceExtractorActivity has been called for the given url an ExtractedDocument is returned which contains a list of urls in the ChildUrls property. In the orchestration we can iterate over this list and call the LinkSourceExtractorActivity function for each of these child url items. Once all of those items have been processed we can combine the results and return this aggregate answer to the user. This pattern is known as fan-out/fan-in. 
 
-Remove the parameter for the ```CloudBlockBlob``` object from the signature of the ```QRCodeGeneratorActivity``` and replace it with a ```Binder binder```. Change the code inside the activity to include this after the 3 QRCode lines:
+Change the implementation of the orchestration function to the following:
 ```
-var attributes = new Attribute[]
+[FunctionName(nameof(UrlScraperOrchestration))]
+public static async Task<IEnumerable<ExtractedDocument>> RunOrchestrator(
+    [OrchestrationTrigger] DurableOrchestrationContext context)
 {
-    new BlobAttribute("azurefunctions-qrcode-images/" + score.Nickname,
-    FileAccess.ReadWrite),
-    new StorageAccountAttribute("azurefunctions-blobs")
-};
-
-CloudBlockBlob blob = await binder.BindAsync<CloudBlockBlob>(attributes);
+    var url = context.GetInput<string>();
+    var document = await context.CallActivityAsync<ExtractedDocument>(nameof(LinkSourceExtractorActivity), url);
+    var tasks = new List<Task<ExtractedDocument>>();
+    foreach (var urlSource in document.ChildUrls)
+    {
+        var task = context.CallActivityAsync<ExtractedDocument>(nameof(LinkSourceExtractorActivity), urlSource);
+        tasks.Add(task);
+    }
+    await Task.WhenAll(tasks);
+    var result = tasks.Select(task => task.Result);
+    return result;
+}
 ```
+> Notice that the calls to the activity function in the foreach loop are not awaited. There's only one await for the entire collection of tasks.
 
-Compile and run the function again and check what happens blob are created inside the blob container.
+Be very careful which site you select to start with since links will be retrieved for two levels deep! You can put a breakpoint in the orchestration right after the first call to LinkSourceExtractorActivity to see how big the ChildUrls list is.
+
+Now compile and start the orchestration (again with Postman or VSCode REST Client). Keep an eye on the function runtime console to see how often activity functions are started. Once the orchestration is finished use the ```statusQueryGetUri``` to retrieve the final results.
 
 ## <a name="4"></a>4. If you have time left...
 
 On the next part, you are on your own. Here are the tasks you need to complete:
-1. Add another activity that will store the high score into a storage table.
-2. Refactor the code in the HTTP starter function to read the high score from the body content.
+1. Refactor the HTTP starter function to be more generic and able to start any other orchestration within the Function App.
+2. Have a look at the various methods in the DurableOrchestrationContext(Base) class. There are many ways to call an Activity function.
+3. Write unit tests for the orchestration and activity function.
 
 ## Wrapup
-In this lab you have created your first durable functions and learned how to partition these into orchestrations and activities. You also refactored code to do imperative binding for more control over your input and output bindings.
+In this lab you have created your first durable functions and learned how to partition these into orchestrations and activities. You've used composition patterns such as chaining and fan-out/fan-in.
 
 With this, you have successfully completed your labs for this workshop. Feel free to experiment with Azure Functions and discover and learn more about this amazing framework and programming model.

@@ -1,0 +1,13 @@
+POST http://localhost:7071/api/Orchestration_HttpStart
+Content-Type: application/json
+
+http://docs.microsoft.com
+
+###
+
+@instance = a667bb88c5b44c19a992dddfbaf35a1d
+@storageCode = jYbO7oDH9N62cc87HpZRagu2eZfJAJWuVD8L1hrsMu0cX21ZNDMXTQ==
+GET http://localhost:7071/runtime/webhooks/durabletask/instances/{{instance}}
+?taskHub=DurableFunctionsHub
+&connection=Storage
+&code={{{{storageCode}}}}
