@@ -38,7 +38,6 @@ Clone the repository to your development machine:
 - Clone the Git repository for the workshop files:
 
 ```
-// Git address will be made available soon!
 git clone https://github.com/marcduiker/FunctionsWorkshop2018.git
 ```
 - Set an environment variable to the root of the cloned repository from PowerShell:

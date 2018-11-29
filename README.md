@@ -1,7 +1,7 @@
 # Workshop Azure Functions 2018
-## Server-less .NET solutions using Azure Functions
+## Serverless .NET solutions using Azure Functions
 
-Welcome to the workshop "Server-less .NET solutions using Azure Functions". 
+Welcome to the workshop "Serverless .NET solutions using Azure Functions". 
 
 In this workshop you will create a .NET based solution with Azure Functions using Visual Studio 2017.
 
